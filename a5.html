@@ -13,16 +13,16 @@
     }
     html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;}
     body {
-  background-image: url('br.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  display:flex;
-  align-items:flex-start;   /* thay vì center */
-  justify-content:center;
-  color:var(--white);
-  padding-top: 40px; /* thêm khoảng cách từ trên xuống */
-}
+      background-image: url('br.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      display:flex;
+      align-items:flex-start;
+      justify-content:center;
+      color:var(--white);
+      padding-top: 40px;
+    }
 
     .overlay {
       width: min(980px,94%);
@@ -59,25 +59,10 @@
       border-radius:10px;
       overflow:hidden;
       background:#000;
-      position:relative;
       width:100%;
       height:calc(100vh - 260px);
     }
-    video{width:100%;height:100%;display:block;background:#000;object-fit:contain;}
-    video:-webkit-full-screen,
-    video:-moz-full-screen,
-    video:fullscreen {width:100%;height:100%;object-fit:contain;}
-
-    .controls{
-      display:flex;align-items:center;gap:8px;padding:10px;
-      background:linear-gradient(180deg, rgba(0,0,0,0.18), rgba(0,0,0,0.28));
-      position:absolute;bottom:0;left:0;right:0;
-    }
-    .icon-btn{
-      border:1px solid rgba(255,255,255,0.06);
-      padding:8px;border-radius:8px;background:transparent;color:var(--white);cursor:pointer;
-    }
-    .vol-slider{width:160px}
+    iframe{width:100%;height:100%;border:0;border-radius:10px;}
 
     .toast-wrap{position:fixed;left:50%;transform:translateX(-50%);bottom:28px;z-index:9999;pointer-events:none}
     .toast{
@@ -101,7 +86,7 @@
     #msgList li{padding:6px 10px;margin-bottom:6px;background:rgba(255,255,255,0.08);border-radius:6px;font-size:14px}
     #msgForm{display:flex;gap:8px}
     #msgInput{flex:1;padding:8px;border-radius:6px;border:none;outline:none}
-    #msgForm button{padding:8px 12px;border:none;border-radius:6px;background:var(--accent);color:rgb(255, 255, 255);font-weight:600;cursor:pointer}
+    #msgForm button{padding:8px 12px;border:none;border-radius:6px;background:var(--accent);color:#fff;font-weight:600;cursor:pointer}
   </style>
 </head>
 <body>
@@ -124,19 +109,9 @@
 
     <!-- Video area -->
     <div id="videoArea" aria-hidden="true">
-      <video id="theVideo" controls preload="metadata" crossorigin="anonymous">
-        <source src="a5.mp4" type="video/mp4">
-        Trình duyệt của bạn không hỗ trợ thẻ video.
-      </video>
-      <div class="controls">
-        <button id="playBtn" class="icon-btn">▶️/⏸</button>
-        <div style="display:flex;align-items:center;gap:8px">
-          <button id="muteBtn" class="icon-btn">🔊</button>
-          <input id="vol" class="vol-slider" type="range" min="0" max="1" step="0.01" value="1">
-        </div>
-        <div style="flex:1"></div>
-        <button id="fsBtn" class="icon-btn">⤢</button>
-      </div>
+      <iframe src="https://www.dropbox.com/scl/fi/5vwy6ljmw3zgvtwplvfss/a5.mp4?rlkey=zml73hpjw8artw7uy7b2u5z9m&st=nsyeylnh&raw=1"
+              allow="autoplay; fullscreen"
+              allowfullscreen></iframe>
     </div>
 
     <!-- Chat box -->
@@ -158,17 +133,16 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
     import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
 
-    // Config Firebase
     const firebaseConfig = {
-  apiKey: "AIzaSyDVbvaEokMVJrr5_8J8FgbimJthUDU9alk",
-  authDomain: "a5-messages.firebaseapp.com",
-  databaseURL: "https://a5-messages-default-rtdb.asia-southeast1.firebasedatabase.app/",
-  projectId: "a5-messages",
-  storageBucket: "a5-messages.firebasestorage.app",
-  messagingSenderId: "295958570697",
-  appId: "1:295958570697:web:38168d3adb7630b3124f18",
-  measurementId: "G-QB24LBY6MX"
-};
+      apiKey: "AIzaSyDVbvaEokMVJrr5_8J8FgbimJthUDU9alk",
+      authDomain: "a5-messages.firebaseapp.com",
+      databaseURL: "https://a5-messages-default-rtdb.asia-southeast1.firebasedatabase.app/",
+      projectId: "a5-messages",
+      storageBucket: "a5-messages.firebasestorage.app",
+      messagingSenderId: "295958570697",
+      appId: "1:295958570697:web:38168d3adb7630b3124f18",
+      measurementId: "G-QB24LBY6MX"
+    };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
@@ -178,12 +152,7 @@
     const input = document.getElementById('pwd');
     const btn = document.getElementById('btn');
     const videoArea = document.getElementById('videoArea');
-    const video = document.getElementById('theVideo');
     const toastWrap = document.getElementById('toastWrap');
-    const playBtn = document.getElementById('playBtn');
-    const muteBtn = document.getElementById('muteBtn');
-    const vol = document.getElementById('vol');
-    const fsBtn = document.getElementById('fsBtn');
     const chatBox = document.getElementById("chatBox");
     const msgForm = document.getElementById("msgForm");
     const msgInput = document.getElementById("msgInput");
@@ -202,7 +171,6 @@
       chatBox.style.display = 'block';
       input.disabled = true; btn.disabled = true;
       showToast('Mật khẩu đúng — mở video...', 2000);
-      setTimeout(()=> { video.play().catch(()=>{}); }, 300);
     }
 
     function checkPassword(){
@@ -211,15 +179,6 @@
     }
     btn.addEventListener('click', checkPassword);
     input.addEventListener('keydown', e => { if (e.key === 'Enter') checkPassword(); });
-
-    playBtn.addEventListener('click', () => { if (video.paused) video.play().catch(()=>{}); else video.pause(); });
-    video.addEventListener('play', () => playBtn.textContent = '⏸');
-    video.addEventListener('pause', () => playBtn.textContent = '▶️');
-    vol.addEventListener('input', () => { video.volume = parseFloat(vol.value); video.muted = (video.volume === 0); updateMuteButton(); });
-    muteBtn.addEventListener('click', () => { video.muted = !video.muted; showToast(video.muted ? 'Tắt tiếng' : 'Bật tiếng'); updateMuteButton(); });
-    function updateMuteButton(){ muteBtn.textContent = (video.muted || video.volume === 0) ? '🔇' : '🔊'; vol.value = video.muted ? 0 : video.volume; }
-    fsBtn.addEventListener('click', async () => { try { if (!document.fullscreenElement) { await video.requestFullscreen(); showToast('Vào chế độ toàn màn hình'); } else { await document.exitFullscreen(); } } catch (err) { showToast('Không thể fullscreen: ' + (err?.message || 'lỗi')); } });
-    video.volume = 1; updateMuteButton();
 
     // Chat Firebase
     msgForm.addEventListener("submit", e => {
