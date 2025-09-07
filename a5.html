@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kỷ niệm</title>
+  <style>
+    :root{
+      --accent: #09d2ff;
+      --bg-overlay: rgba(255, 255, 255, 0.55);
+      --toast-bg: rgba(255, 255, 255, 0.85);
+      --white: #ffffff;
+    }
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;}
+    body {
+  background-image: url('br.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display:flex;
+  align-items:flex-start;   /* thay vì center */
+  justify-content:center;
+  color:var(--white);
+  padding-top: 40px; /* thêm khoảng cách từ trên xuống */
+}
+
+    .overlay {
+      width: min(980px,94%);
+      max-width: 1200px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.32));
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 12px 40px rgba(255, 255, 255, 0.6);
+      position: relative;
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255,255,255,0.04);
+      overflow-y: auto;
+      max-height: 96vh;
+    }
+
+    .top-row {display:flex;align-items:center;justify-content:space-between;gap:12px}
+    h1{margin:0;font-size:20px}
+    .hint{font-size:13px;color:rgba(255, 255, 255, 0.85)}
+    .left {flex:1}
+
+    .pwd-row{display:flex;gap:8px;margin-top:12px;align-items:center}
+    input[type="password"]{
+      flex:1;padding:10px 12px;border-radius:8px;border:1px solid rgb(0, 0, 0);
+      background: rgb(0, 234, 255);color:var(--black);outline:none;
+    }
+    button.btn{
+      background:var(--accent);border:none;color:#022; padding:10px 14px;border-radius:8px;cursor:pointer;font-weight:600;
+    }
+    .note{margin-top:8px;font-size:12px;color:rgba(255, 255, 255, 0.7);}
+
+    #videoArea{
+      display:none;
+      margin-top:18px;
+      border-radius:10px;
+      overflow:hidden;
+      background:#000;
+      position:relative;
+      width:100%;
+      height:calc(100vh - 260px);
+    }
+    video{width:100%;height:100%;display:block;background:#000;object-fit:contain;}
+    video:-webkit-full-screen,
+    video:-moz-full-screen,
+    video:fullscreen {width:100%;height:100%;object-fit:contain;}
+
+    .controls{
+      display:flex;align-items:center;gap:8px;padding:10px;
+      background:linear-gradient(180deg, rgba(0,0,0,0.18), rgba(0,0,0,0.28));
+      position:absolute;bottom:0;left:0;right:0;
+    }
+    .icon-btn{
+      border:1px solid rgba(255,255,255,0.06);
+      padding:8px;border-radius:8px;background:transparent;color:var(--white);cursor:pointer;
+    }
+    .vol-slider{width:160px}
+
+    .toast-wrap{position:fixed;left:50%;transform:translateX(-50%);bottom:28px;z-index:9999;pointer-events:none}
+    .toast{
+      pointer-events:auto;
+      max-width:90vw;
+      padding:10px 14px;border-radius:10px;background:var(--toast-bg);color:var(--white);
+      box-shadow: 0 8px 24px rgba(2,6,23,0.6);margin-top:8px;font-weight:600;
+      display:flex;gap:10px;align-items:center;
+    }
+
+    .footer-note{margin-top:10px;font-size:12px;color:rgba(255, 255, 255, 0.7)}
+
+    /* Chat box */
+    #chatBox{
+      display:none;
+      margin-top:20px;padding:12px;
+      background:rgba(0,0,0,0.35);
+      border-radius:10px;
+    }
+    #msgList{list-style:none;padding:0;margin:10px 0;max-height:200px;overflow-y:auto;}
+    #msgList li{padding:6px 10px;margin-bottom:6px;background:rgba(255,255,255,0.08);border-radius:6px;font-size:14px}
+    #msgForm{display:flex;gap:8px}
+    #msgInput{flex:1;padding:8px;border-radius:6px;border:none;outline:none}
+    #msgForm button{padding:8px 12px;border:none;border-radius:6px;background:var(--accent);color:rgb(255, 255, 255);font-weight:600;cursor:pointer}
+  </style>
+</head>
+<body>
+  <div class="overlay" role="main" aria-live="polite">
+    <div class="top-row">
+      <div class="left">
+        <h1>Nhập mật khẩu</h1>
+        <div class="hint">Mật khẩu phân biệt hoa/thường</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:13px;color:rgb(238, 246, 251)">Trang lớp 11A5 K58</div>
+        <div style="font-size:12px;color:rgb(255, 249, 249)">Ghi chú: mật khẩu là mật khẩu mạng lớp (lưu ý bảo mật)</div>
+      </div>
+    </div>
+
+    <div class="pwd-row" style="margin-top:12px">
+      <input id="pwd" type="password" placeholder="Nhập mật khẩu..." autocomplete="off" aria-label="Mật khẩu" />
+      <button id="btn" class="btn">Xác nhận</button>
+    </div>
+
+    <!-- Video area -->
+    <div id="videoArea" aria-hidden="true">
+      <video id="theVideo" controls preload="metadata" crossorigin="anonymous">
+        <source src="a5.mp4" type="video/mp4">
+        Trình duyệt của bạn không hỗ trợ thẻ video.
+      </video>
+      <div class="controls">
+        <button id="playBtn" class="icon-btn">▶️/⏸</button>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button id="muteBtn" class="icon-btn">🔊</button>
+          <input id="vol" class="vol-slider" type="range" min="0" max="1" step="0.01" value="1">
+        </div>
+        <div style="flex:1"></div>
+        <button id="fsBtn" class="icon-btn">⤢</button>
+      </div>
+    </div>
+
+    <!-- Chat box -->
+    <div id="chatBox">
+      <h3>Lời nhắn ẩn danh 💬</h3>
+      <ul id="msgList"></ul>
+      <form id="msgForm">
+        <input id="msgInput" type="text" placeholder="Viết lời nhắn..." />
+        <button type="submit">Gửi</button>
+      </form>
+    </div>
+
+    <div class="footer-note">Lưu ý: file video có thể bị truy cập trực tiếp nếu biết URL. Để bảo mật, kiểm tra phía server.</div>
+  </div>
+
+  <div class="toast-wrap" id="toastWrap"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+    import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
+
+    // Config Firebase
+    const firebaseConfig = {
+  apiKey: "AIzaSyDVbvaEokMVJrr5_8J8FgbimJthUDU9alk",
+  authDomain: "a5-messages.firebaseapp.com",
+  databaseURL: "https://a5-messages-default-rtdb.asia-southeast1.firebasedatabase.app/",
+  projectId: "a5-messages",
+  storageBucket: "a5-messages.firebasestorage.app",
+  messagingSenderId: "295958570697",
+  appId: "1:295958570697:web:38168d3adb7630b3124f18",
+  measurementId: "G-QB24LBY6MX"
+};
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const messagesRef = ref(db, "messages");
+
+    const CORRECT_PASSWORD = 'A5CHAMHOC';
+    const input = document.getElementById('pwd');
+    const btn = document.getElementById('btn');
+    const videoArea = document.getElementById('videoArea');
+    const video = document.getElementById('theVideo');
+    const toastWrap = document.getElementById('toastWrap');
+    const playBtn = document.getElementById('playBtn');
+    const muteBtn = document.getElementById('muteBtn');
+    const vol = document.getElementById('vol');
+    const fsBtn = document.getElementById('fsBtn');
+    const chatBox = document.getElementById("chatBox");
+    const msgForm = document.getElementById("msgForm");
+    const msgInput = document.getElementById("msgInput");
+    const msgList = document.getElementById("msgList");
+
+    function showToast(text, timeout = 3500){
+      const t = document.createElement('div');
+      t.className = 'toast';
+      t.textContent = text;
+      toastWrap.appendChild(t);
+      setTimeout(()=> { t.style.opacity = '0'; t.style.transform = 'translateY(6px)'; setTimeout(()=> t.remove(), 300); }, timeout);
+    }
+
+    function unlockUI(){
+      videoArea.style.display = 'block';
+      chatBox.style.display = 'block';
+      input.disabled = true; btn.disabled = true;
+      showToast('Mật khẩu đúng — mở video...', 2000);
+      setTimeout(()=> { video.play().catch(()=>{}); }, 300);
+    }
+
+    function checkPassword(){
+      if (input.value === CORRECT_PASSWORD){ unlockUI(); }
+      else { showToast('Mật khẩu sai. Vui lòng thử lại.', 3000); input.value = ''; input.focus(); }
+    }
+    btn.addEventListener('click', checkPassword);
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') checkPassword(); });
+
+    playBtn.addEventListener('click', () => { if (video.paused) video.play().catch(()=>{}); else video.pause(); });
+    video.addEventListener('play', () => playBtn.textContent = '⏸');
+    video.addEventListener('pause', () => playBtn.textContent = '▶️');
+    vol.addEventListener('input', () => { video.volume = parseFloat(vol.value); video.muted = (video.volume === 0); updateMuteButton(); });
+    muteBtn.addEventListener('click', () => { video.muted = !video.muted; showToast(video.muted ? 'Tắt tiếng' : 'Bật tiếng'); updateMuteButton(); });
+    function updateMuteButton(){ muteBtn.textContent = (video.muted || video.volume === 0) ? '🔇' : '🔊'; vol.value = video.muted ? 0 : video.volume; }
+    fsBtn.addEventListener('click', async () => { try { if (!document.fullscreenElement) { await video.requestFullscreen(); showToast('Vào chế độ toàn màn hình'); } else { await document.exitFullscreen(); } } catch (err) { showToast('Không thể fullscreen: ' + (err?.message || 'lỗi')); } });
+    video.volume = 1; updateMuteButton();
+
+    // Chat Firebase
+    msgForm.addEventListener("submit", e => {
+      e.preventDefault();
+      if (msgInput.value.trim() === "") return;
+      push(messagesRef, { text: msgInput.value.trim(), time: Date.now() });
+      msgInput.value = "";
+    });
+    onChildAdded(messagesRef, snapshot => {
+      const data = snapshot.val();
+      const li = document.createElement("li");
+      li.textContent = data.text;
+      msgList.appendChild(li);
+      msgList.scrollTop = msgList.scrollHeight;
+    });
+
+    input.focus();
+  </script>
+</body>
+</html>
